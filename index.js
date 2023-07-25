@@ -36,7 +36,20 @@ const main = async () => {
             res.send(result);
         });
 
-        
+        app.post('/api/v1/users', async (req, res) => {
+            const user = req.body;
+            if (user?.role === "user") {
+                user.wishlist = [];
+                user.currently_reading = [];
+                user.finished_reading = [];
+            } else if (user?.role === "author") {
+                user.total_books = 0;
+            }
+            const result = await usersCollection.insertOne(user)
+            res.send(result);
+        });
+
+       
     } finally {
         // await client.close();
     }
