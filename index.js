@@ -49,6 +49,19 @@ const main = async () => {
             res.send(result);
         });
 
+        // INFO: books
+        app.get('/api/v1/books', async (req, res) => {
+            const result = await booksCollection.find({}).toArray();
+            res.send(result);
+        });
+
+        app.get('/api/v1/book/:id', async (req, res) => {
+            const id = req.params.id;
+            const result = await booksCollection.find({ _id: new ObjectId(id) }).toArray();
+            console.log(result);
+            res.send(result);
+        })
+
        
     } finally {
         // await client.close();
