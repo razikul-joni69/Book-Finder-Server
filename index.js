@@ -62,7 +62,20 @@ const main = async () => {
             res.send(result);
         })
 
-       
+        app.post('/api/v1/books', async (req, res) => {
+            const book = req.body;
+            book.publish_date = new Date().toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric"
+            })
+            console.log(book);
+            const userEmail = book.author_email;
+            const user = await usersCollection.findOne({ email: userEmail });
+            user.total_books += 1;
+            const result = await booksCollection.insertOne(book);
+            res.send(result);
+        })
     } finally {
         // await client.close();
     }
