@@ -30,6 +30,12 @@ const main = async () => {
             res.send(result);
         });
 
+        app.get('/api/v1/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const result = await usersCollection.findOne({ email: email })
+            res.send(result);
+        });
+
         
     } finally {
         // await client.close();
