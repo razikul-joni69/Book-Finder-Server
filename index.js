@@ -38,13 +38,10 @@ const main = async () => {
 
         app.post('/api/v1/users', async (req, res) => {
             const user = req.body;
-            if (user?.role === "user") {
-                user.wishlist = [];
-                user.currently_reading = [];
-                user.finished_reading = [];
-            } else if (user?.role === "author") {
-                user.total_books = 0;
-            }
+            user.wishlist = [];
+            user.currently_reading = [];
+            user.finished_reading = [];
+            user.total_books = 0;
             const result = await usersCollection.insertOne(user)
             res.send(result);
         });
@@ -61,6 +58,8 @@ const main = async () => {
             res.send(result);
         })
 
+        
+
         app.post('/api/v1/books', async (req, res) => {
             const book = req.body;
             book.publish_date = new Date().toLocaleDateString("en-US", {
@@ -74,7 +73,26 @@ const main = async () => {
             user.total_books += 1;
             const result = await booksCollection.insertOne(book);
             res.send(result);
-        })
+        }),
+
+            app.post('/api/v1/book/:email', async (req, res) => {
+                const { email } = req.params;
+                const { book } = req.body;
+                console.log(book);
+
+                const result = await usersCollection.updateOne(
+                    { email: email },
+                    { $push: { wishlist: book } }
+                );
+
+                if (result.modifiedCount !== 1) {
+                    console.error('Product not found or comment not added');
+                    res.json({ error: 'Product not found or comment not added' });
+                    return;
+                }
+
+                res.json({ message: 'Comment added successfully' });
+            });
 
 
         // INFO: Comments
