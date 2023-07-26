@@ -78,6 +78,21 @@ const main = async () => {
 
 
         // INFO: Comments
+        app.get('/api/v1/comment/:id', async (req, res) => {
+            const productId = req.params.id;
+
+            const result = await booksCollection.findOne(
+                { _id: new ObjectId(productId) },
+                { projection: { _id: 0, reviews: 1 } }
+            );
+
+            if (result) {
+                res.json(result);
+            } else {
+                res.status(404).json({ error: 'Product not found' });
+            }
+        });
+
         app.post('/api/v1/comment/:id', async (req, res) => {
             const bookId = req.params.id;
             const comment = req.body.comment;
