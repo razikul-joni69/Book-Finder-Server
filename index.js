@@ -39,7 +39,7 @@ const main = async () => {
         app.post('/api/v1/users', async (req, res) => {
             const user = req.body;
             user.wishlist = [];
-            user.currently_reading = [];
+            user.readinglist = [];
             user.finished_reading = [];
             user.total_books = 0;
             const result = await usersCollection.insertOne(user)
@@ -58,7 +58,7 @@ const main = async () => {
             res.send(result);
         })
 
-        
+
 
         app.post('/api/v1/books', async (req, res) => {
             const book = req.body;
@@ -78,20 +78,54 @@ const main = async () => {
             app.post('/api/v1/book/:email', async (req, res) => {
                 const { email } = req.params;
                 const { book } = req.body;
-                console.log(book);
+                const { cart } = req.query;
+                console.log(cart);
 
-                const result = await usersCollection.updateOne(
-                    { email: email },
-                    { $push: { wishlist: book } }
-                );
+                if (cart === "wishlist") {
+                    const userWishlist = await usersCollection.findOne({ email: email });
 
-                if (result.modifiedCount !== 1) {
-                    console.error('Product not found or comment not added');
-                    res.json({ error: 'Product not found or comment not added' });
-                    return;
+                    const exists =
+                        userWishlist?.wishlist?.find((bk) => bk?._id === book._id) !== undefined;
+
+                    if (exists) {
+                        res.json({ statusCode: 409, message: 'Book already in your wishlist!' });
+                    } else {
+                        const result = await usersCollection.updateOne(
+                            { email: email },
+                            { $push: { wishlist: book } }
+                        );
+
+                        if (result.modifiedCount !== 1) {
+                            console.error('Book not found or not added');
+                            res.json({ error: 'Book not found or not added' });
+                            return;
+                        }
+
+                        res.json({ statusCode: 200, message: 'Book added successfully to your wishlist' });
+                    }
+                } else if (cart === "readinglist") {
+                    const userWishlist = await usersCollection.findOne({ email: email });
+
+                    const exists =
+                        userWishlist?.readinglist?.find((bk) => bk?._id === book._id) !== undefined;
+
+                    if (exists) {
+                        res.json({ statusCode: 409, message: 'Book already in your readinglist!' });
+                    } else {
+                        const result = await usersCollection.updateOne(
+                            { email: email },
+                            { $push: { readinglist: book } }
+                        );
+
+                        if (result.modifiedCount !== 1) {
+                            console.error('Book not found or not added');
+                            res.json({ error: 'Book not found or not added' });
+                            return;
+                        }
+
+                        res.json({ statusCode: 200, message: 'Book added successfully to your readinglist!' });
+                    }
                 }
-
-                res.json({ message: 'Comment added successfully' });
             });
 
 
@@ -126,7 +160,7 @@ const main = async () => {
                 return;
             }
 
-            res.json({ message: 'Comment added successfully' });
+            res.json({ statusCode: 200, message: 'Comment added successfully' });
         });
     } finally {
         // await client.close();
