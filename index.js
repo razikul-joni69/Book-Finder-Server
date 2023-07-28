@@ -40,11 +40,29 @@ const main = async () => {
             const user = req.body;
             user.wishlist = [];
             user.readinglist = [];
-            user.finished_reading = [];
             user.total_books = 0;
             const result = await usersCollection.insertOne(user)
             res.send(result);
         });
+
+        // app.patch('/api/v1/user/:email', async (req, res) => {
+        //     const { email } = req.params;
+        //     // const { book } = req.body;
+
+        //     console.log(email);
+        //     // const result = await booksCollection.findOneAndUpdate({ _id: new ObjectId(id) }, {
+        //     //     $set: {
+        //     //         book_name: data?.book_name,
+        //     //         genre: data?.genre,
+        //     //         description: data?.description
+        //     //     }
+        //     // });
+        //     // if (result?.lastErrorObject?.updatedExisting) {
+        //     //     res.json({ statusCode: 200, message: '📖 Book Edited Successfully! 🆗' });
+        //     // } else {
+        //     //     res.json({ statusCode: 422, message: 'Something went wrong! 🚫' });
+        //     // }
+        // });
 
         // INFO: books
         app.get('/api/v1/books', async (req, res) => {
@@ -76,7 +94,6 @@ const main = async () => {
             const { id } = req.params;
             const { data } = req.body;
 
-            console.log(id, data);
             const result = await booksCollection.findOneAndUpdate({ _id: new ObjectId(id) }, {
                 $set: {
                     book_name: data?.book_name,
@@ -95,7 +112,6 @@ const main = async () => {
             const { id } = req.params;
 
             const result = await booksCollection.deleteOne({ _id: new ObjectId(id) });
-            console.log(result);
             if (result?.deletedCount) {
                 res.json({ statusCode: 200, message: '📖 Book Deleted Successfully! 🆗' });
             } else {
@@ -107,7 +123,6 @@ const main = async () => {
             const { email } = req.params;
             const { book } = req.body;
             const { cart } = req.query;
-            console.log(cart);
 
             if (cart === "wishlist") {
                 const userWishlist = await usersCollection.findOne({ email: email });
